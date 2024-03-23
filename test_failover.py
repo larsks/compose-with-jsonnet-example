@@ -11,6 +11,8 @@ public_url = f"http://{public_vip}/api"
 
 
 class Compose:
+    """A convenience class for running `docker compose` command lines"""
+
     def up(self, *services):
         if services is None:
             services = []
@@ -26,12 +28,17 @@ class Compose:
 
     @contextmanager
     def bounce(self, *services):
+        """A context manager that will bring down services on enter and then bring them
+        back up on exit.
+        """
         self.down(*services)
         yield
         self.up(*services)
 
 
 class Timeout:
+    """A context manager that uses SIGALRM to implement a timeout."""
+
     def __init__(self, timeout):
         self.timeout = timeout
 
