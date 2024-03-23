@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -exu
 
 : "${KEEPALIVED_STATE:=BACKUP}"
 : "${KEEPALIVED_INTERFACE:=eth0}"
