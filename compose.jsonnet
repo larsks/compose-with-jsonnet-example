@@ -12,7 +12,10 @@ local keepalived_interface = 'eth1';
       ipam: {
         driver: 'default',
         config: [
-          { subnet: '100.64.64.0/24' },
+          {
+            subnet: '100.64.64.0/24',
+            ip_range: '100.64.64.0/28',
+          },
         ],
       },
     },
