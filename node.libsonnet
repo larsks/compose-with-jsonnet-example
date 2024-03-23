@@ -3,7 +3,7 @@ local partof(name) = {
   pid: 'service:%s' % name,
 };
 
-function(name)
+function(name, keepalived_vip, keepalived_interface='eth0', keepalived_state='BACKUP')
   {
     [name]: {
       command: [
@@ -12,6 +12,10 @@ function(name)
       ],
       hostname: '%s' % name,
       image: 'docker.io/alpine:latest',
+      networks: [
+        'private',
+        'public',
+      ],
     },
     ['%s-haproxy' % name]: {
       image: 'docker.io/haproxy:2.9',
@@ -25,8 +29,13 @@ function(name)
       },
       image: 'keepalived',
       privileged: true,
+      environment: {
+        KEEPALIVED_VIP: keepalived_vip,
+        KEEPALIVED_INTERFACE: keepalived_interface,
+        KEEPALIVED_STATE: keepalived_state,
+      },
       volumes: [
-        './%s/keepalived.conf:/etc/keepalived/keepalived.conf' % name,
+        './keepalived.conf:/config/keepalived.conf',
       ],
     } + partof(name),
     ['%s-whoami' % name]: {
