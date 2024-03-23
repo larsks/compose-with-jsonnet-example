@@ -1,0 +1,108 @@
+{
+   "networks": {
+      "private": { },
+      "public": {
+         "ipam": {
+            "config": [
+               {
+                  "ip_range": "100.64.64.0/28",
+                  "subnet": "100.64.64.0/24"
+               }
+            ],
+            "driver": "default"
+         }
+      }
+   },
+   "services": {
+      "node0": {
+         "command": [
+            "sleep",
+            "inf"
+         ],
+         "hostname": "node0",
+         "image": "docker.io/alpine:latest",
+         "networks": [
+            "private",
+            "public"
+         ]
+      },
+      "node0-haproxy": {
+         "image": "docker.io/haproxy:2.9",
+         "network_mode": "service:node0",
+         "pid": "service:node0",
+         "volumes": [
+            "./node0/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+         ]
+      },
+      "node0-vrrpd": {
+         "build": {
+            "context": "."
+         },
+         "environment": {
+            "KEEPALIVED_INTERFACE": "eth1",
+            "KEEPALIVED_STATE": "MASTER",
+            "KEEPALIVED_VIP": "100.64.64.100"
+         },
+         "image": "keepalived",
+         "network_mode": "service:node0",
+         "pid": "service:node0",
+         "privileged": true,
+         "volumes": [
+            "./keepalived.conf:/config/keepalived.conf"
+         ]
+      },
+      "node0-whoami": {
+         "environment": {
+            "WHOAMI_PORT_NUMBER": 5000
+         },
+         "image": "docker.io/traefik/whoami",
+         "network_mode": "service:node0",
+         "pid": "service:node0"
+      },
+      "node1": {
+         "command": [
+            "sleep",
+            "inf"
+         ],
+         "hostname": "node1",
+         "image": "docker.io/alpine:latest",
+         "networks": [
+            "private",
+            "public"
+         ]
+      },
+      "node1-haproxy": {
+         "image": "docker.io/haproxy:2.9",
+         "network_mode": "service:node1",
+         "pid": "service:node1",
+         "volumes": [
+            "./node1/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+         ]
+      },
+      "node1-vrrpd": {
+         "build": {
+            "context": "."
+         },
+         "environment": {
+            "KEEPALIVED_INTERFACE": "eth1",
+            "KEEPALIVED_STATE": "BACKUP",
+            "KEEPALIVED_VIP": "100.64.64.100"
+         },
+         "image": "keepalived",
+         "network_mode": "service:node1",
+         "pid": "service:node1",
+         "privileged": true,
+         "volumes": [
+            "./keepalived.conf:/config/keepalived.conf"
+         ]
+      },
+      "node1-whoami": {
+         "environment": {
+            "WHOAMI_PORT_NUMBER": 5000
+         },
+         "image": "docker.io/traefik/whoami",
+         "network_mode": "service:node1",
+         "pid": "service:node1"
+      }
+   }
+}

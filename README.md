@@ -2,12 +2,6 @@ Configure an environment for testing haproxy and keepalived. Inspired by [this q
 
 [question]: https://serverfault.com/questions/1156761/haproxy-with-keepalived-not-behaving-as-expected
 
-## Requirements
-
-To generate `compose.yaml` you will need `make` and [`jsonnet`][jsonnet].
-
-[jsonnet]: https://jsonnet.org/
-
 ## Usage
 
 To bring up this environment, run:
@@ -131,3 +125,10 @@ node1-vrrpd-1    | Sat Mar 23 10:50:44 2024: Script `chk_haproxy` now returning 
 node1-vrrpd-1    | Sat Mar 23 10:50:44 2024: VRRP_Script(chk_haproxy) succeeded
 node1-vrrpd-1    | Sat Mar 23 10:50:44 2024: (VI_1) Changing effective priority from 101 to 103
 ```
+
+## Building
+
+To generate `compose.yaml` after making changes to `compose.jsonnet` or `node.libsonnet` you will need `make` and [`jsonnet`][jsonnet].
+
+[jsonnet]: https://jsonnet.org/
+
