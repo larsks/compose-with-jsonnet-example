@@ -21,6 +21,7 @@
          ],
          "hostname": "node0",
          "image": "docker.io/alpine:latest",
+         "init": true,
          "networks": [
             "private",
             "public"
@@ -66,6 +67,7 @@
          ],
          "hostname": "node1",
          "image": "docker.io/alpine:latest",
+         "init": true,
          "networks": [
             "private",
             "public"

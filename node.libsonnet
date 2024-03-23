@@ -10,6 +10,7 @@ function(name, keepalived_vip, keepalived_interface='eth0', keepalived_state='BA
         'sleep',
         'inf',
       ],
+      init: true,
       hostname: '%s' % name,
       image: 'docker.io/alpine:latest',
       networks: [
