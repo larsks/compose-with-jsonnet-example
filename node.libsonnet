@@ -1,3 +1,8 @@
+local partof(name) = {
+  network_mode: 'service:%s' % name,
+  pid: 'service:%s' % name,
+};
+
 function(name)
   {
     [name]: {
@@ -10,30 +15,24 @@ function(name)
     },
     ['%s-haproxy' % name]: {
       image: 'docker.io/haproxy:2.9',
-      network_mode: 'service:%s' % name,
-      pid: 'service:%s' % name,
       volumes: [
         './%s/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg' % name,
       ],
-    },
+    } + partof(name),
     ['%s-vrrpd' % name]: {
       build: {
         context: '.',
       },
       image: 'keepalived',
-      network_mode: 'service:%s' % name,
-      pid: 'service:%s' % name,
       privileged: true,
       volumes: [
         './%s/keepalived.conf:/etc/keepalived/keepalived.conf' % name,
       ],
-    },
+    } + partof(name),
     ['%s-whoami' % name]: {
       environment: {
         WHOAMI_PORT_NUMBER: 5000,
       },
       image: 'docker.io/traefik/whoami',
-      network_mode: 'service:%s' % name,
-      pid: 'service:%s' % name,
-    },
+    } + partof(name),
   }
