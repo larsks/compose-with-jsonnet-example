@@ -132,3 +132,15 @@ To generate `compose.yaml` after making changes to `compose.jsonnet` or `node.li
 
 [jsonnet]: https://jsonnet.org/
 
+
+## Running tests
+
+The tests are written using [pytest] so you will need a functioning Python environment.
+
+```
+pip install pipenv
+pipenv install
+pipenv run pytest
+```
+
+[pytest]: https://docs.pytest.org
