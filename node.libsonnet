@@ -13,22 +13,19 @@ function(name)
       network_mode: 'service:%s' % name,
       pid: 'service:%s' % name,
       volumes: [
-        './haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg',
+        './%s/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg' % name,
       ],
     },
     ['%s-vrrpd' % name]: {
       build: {
         context: '.',
       },
-      environment: {
-        KEEPALIVED_STATE: 'MASTER',
-      },
       image: 'keepalived',
       network_mode: 'service:%s' % name,
       pid: 'service:%s' % name,
       privileged: true,
       volumes: [
-        './keepalived.conf:/config/keepalived.conf',
+        './%s/keepalived.conf:/etc/keepalived/keepalived.conf' % name,
       ],
     },
     ['%s-whoami' % name]: {
