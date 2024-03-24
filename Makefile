@@ -5,3 +5,6 @@ compose.yaml: compose.jsonnet node.libsonnet
 
 clean:
 	rm -f compose.yaml
+
+test: compose.yaml
+	pipenv run pytest -v
