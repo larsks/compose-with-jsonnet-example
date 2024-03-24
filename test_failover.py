@@ -6,9 +6,6 @@ import subprocess
 
 from contextlib import contextmanager
 
-public_vip = "100.64.64.100"
-public_url = f"http://{public_vip}/api"
-
 
 class Compose:
     """A convenience class for running `docker compose` command lines"""
@@ -55,26 +52,40 @@ class Timeout:
 
 
 @pytest.fixture(scope="session")
+def public_vip(request):
+    return request.config.getoption("--public-vip")
+
+
+@pytest.fixture(scope="session")
+def public_url(public_vip):
+    return f"http://{public_vip}/api"
+
+
+@pytest.fixture(scope="session")
 def compose():
     return Compose()
 
 
 @pytest.fixture(scope="session")
-def stack(compose):
-    compose.up()
-    while True:
-        try:
-            res = requests.get(public_url)
-            res.raise_for_status()
-        except requests.exceptions.RequestException:
-            time.sleep(1)
-        else:
-            break
+def stack(compose, public_url):
+    with Timeout(10):
+        compose.up()
+        while True:
+            print("something")
+            try:
+                res = requests.get(public_url)
+                res.raise_for_status()
+            except requests.exceptions.ConnectTimeout:
+                raise
+            except requests.exceptions.RequestException:
+                time.sleep(1)
+            else:
+                break
     yield
     compose.down()
 
 
-def wait_for_node_change(initial_node):
+def wait_for_node_change(initial_node, public_url):
     with Timeout(10):
         while True:
             try:
@@ -88,34 +99,34 @@ def wait_for_node_change(initial_node):
             time.sleep(0.5)
 
 
-def test_backend_failure(compose, stack):
-    res = requests.get(public_url)
+def test_backend_failure(compose, stack, public_url):
+    res = requests.get(public_url, timeout=10)
     assert res.status_code == 200
     initial_node = res.json()["hostname"]
     with compose.bounce(f"{initial_node}-whoami"):
-        new_node = wait_for_node_change(initial_node)
-    wait_for_node_change(new_node)
+        new_node = wait_for_node_change(initial_node, public_url)
+    wait_for_node_change(new_node, public_url)
 
 
-def test_haproxy_failure(compose, stack):
-    res = requests.get(public_url)
+def test_haproxy_failure(compose, stack, public_url):
+    res = requests.get(public_url, timeout=10)
     assert res.status_code == 200
     initial_node = res.json()["hostname"]
     with compose.bounce(f"{initial_node}-haproxy"):
-        wait_for_node_change(initial_node)
+        wait_for_node_change(initial_node, public_url)
 
 
-def test_vrrpd_failure(compose, stack):
-    res = requests.get(public_url)
+def test_vrrpd_failure(compose, stack, public_url):
+    res = requests.get(public_url, timeout=10)
     assert res.status_code == 200
     initial_node = res.json()["hostname"]
     with compose.bounce(f"{initial_node}-vrrpd"):
-        wait_for_node_change(initial_node)
+        wait_for_node_change(initial_node, public_url)
 
 
-def test_node_failure(compose, stack):
-    res = requests.get(public_url)
+def test_node_failure(compose, stack, public_url):
+    res = requests.get(public_url, timeout=10)
     assert res.status_code == 200
     initial_node = res.json()["hostname"]
     with compose.bounce(initial_node):
-        wait_for_node_change(initial_node)
+        wait_for_node_change(initial_node, public_url)
